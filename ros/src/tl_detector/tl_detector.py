@@ -72,7 +72,7 @@ class TLDetector(object):
 
     def traffic_cb(self, msg):
         self.lights = msg.lights
-        light_wp, state = self.process_traffic_lights()
+        # light_wp, state = self.process_traffic_lights()
         # if state == TrafficLight.RED:
         #     self.upcoming_red_light_pub.publish(Int32(light_wp))
 
