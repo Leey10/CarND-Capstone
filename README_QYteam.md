@@ -82,7 +82,7 @@ This is the simplest controller of the three - we simply proportionally brake ba
 
 ## Testing on Simulator
 
-We can first validate our project in the simulator using the following commands:
+We validated our project in the simulator using the following commands:
 
 git clone https://github.com/Qiyd81/CarND-Capstone.git
 
@@ -91,7 +91,8 @@ Then, install python dependencies
 cd CarND-Capstone
 pip install -r requirements.txt
 
-We ran our simulator in MacOS with code in VM.
+We ran our simulator in MacOS with code in VM （the method to setup the communication between VM and MacOS host can be found in "VM_environment_setup_method.txt".
+
 To launch the environment, follow the instructions below:
 
 cd CarND-Capstone
@@ -109,10 +110,24 @@ https://github.com/udacity/CarND-Capstone/releases/tag/v1.2
 
 ## Testing for Site
 
-We have done the testing in the Udacity simulator. And we have extracted some images from the rosbag file, but don't know how to drive in the simulator site track.  
+We have done the testing mostly in the Udacity simulator, and validated the classified function with modified CarND-Object-Detection-Lab code. 
+1. We extracted 2562 images from the rosbag file, steps as follows:
+ - *Step 1:* Open a terminal window:
+      source devel/setup.sh
+      roscore
+ - *Step 2:* Open another terminal window:
+      source devel/setup.sh
+      rosbag play -l traffic_light_bag_files/traffic_light_training.bag
+ - *Step 3:* Open a third terminal window:
+      source devel/setup.sh
+      rostopic list //to identify the current topics
+      rosrun image_view image_saver image:=/image_color  //where image_color is the topic we want to listen to.
+2. We created a video by using the video.py code carried from Behavior_Cloning class. 
+
+3. We modifed CarND-Object-Detection-Lab code, and used the frozen_inference_graph.pb forked from https://github.com/SiliconCar/CarND-Capstone.git to test on the video and also the single images. But we don't find out how to drive the car in the simulator site track. 
 
 ## What to do next
 
-1. Write the obstacle_detection node to see how it works.
-2. 
+1. Write the obstacle_detection node.
+2. Sensor fusion the information from other sensors to detect the distance.
 
