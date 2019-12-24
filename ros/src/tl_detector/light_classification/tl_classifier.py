@@ -1,24 +1,3 @@
-#from styx_msgs.msg import TrafficLight
-#
-#
-#class TLClassifier(object):
-#    def __init__(self):
-#        #TODO load classifier
-#        pass
-#
-#    def get_classification(self, image):
-#        """Determines the color of the traffic light in the image
-#
-#        Args:
-#            image (cv::Mat): image containing the traffic light
-#
-#        Returns:
-#            int: ID of traffic light color (specified in styx_msgs/TrafficLight)
-#
-#        """
-#        #TODO implement light color prediction
-#        return TrafficLight.UNKNOWN
-
 from styx_msgs.msg import TrafficLight
 import tensorflow as tf
 import numpy as np
@@ -33,23 +12,16 @@ import keras
 from keras.models import load_model
 import os
 
+## code to visulize the classified image, not so usefull
+# os.chdir('/home/student/CarND-Capstone/ros/src/tl_detector/light_classification/')
+# from utils import visualization_utils as vis_util
 
-os.chdir('/home/student/CarND-Capstone/ros/src/tl_detector/light_classification/')
-from utils import visualization_utils as vis_util
+# VISUALIZE = False
 
-VISUALIZE = False
-
-#%matplotlib inline
-#plt.style.use('ggplot')
-
-# Import everything needed to edit/save/watch video clips
-#from moviepy.editor import VideoFileClip
-#from IPython.display import HTML
-
-# Frozen inference graph files. NOTE: change the path to where you saved the models.
+## Frozen inference graph files. NOTE: change the path to where you saved the models.
 # SSD_GRAPH_FILE = '/home/student/CarND-Capstone/ros/src/tl_detector/light_classification/ssd_mobilenet_v1_coco_11_06_2017/frozen_inference_graph.pb'
 # RFCN_GRAPH_FILE = '/home/student/capstone_ws/CarND-Capstone/ros/src/tl_detector/light_classification/rfcn_resnet101_coco_11_06_2017/frozen_inference_graph.pb'
-#FASTER_RCNN_GRAPH_FILE = 'faster_rcnn_inception_resnet_v2_atrous_coco_11_06_2017/frozen_inference_graph.pb'
+# FASTER_RCNN_GRAPH_FILE = 'faster_rcnn_inception_resnet_v2_atrous_coco_11_06_2017/frozen_inference_graph.pb'
 OTHER_GRAPH_FILE = '/home/student/CarND-Capstone/ros/src/tl_detector/light_classification/other_model/frozen_inference_graph.pb'
 
 class TLClassifier(object):
@@ -65,9 +37,7 @@ class TLClassifier(object):
                 serialized_graph = fid.read()
                 od_graph_def.ParseFromString(serialized_graph)
                 tf.import_graph_def(od_graph_def, name='')
-        # detection_graph = load_graph(SSD_GRAPH_FILE)
-        # detection_graph = load_graph(RFCN_GRAPH_FILE)
-        # detection_graph = load_graph(FASTER_RCNN_GRAPH_FILE)
+
         self.category_index = {1: {'id': 1, 'name': 'Green'}, 2: {'id': 2, 'name': 'Red'}, 3: {'id': 3, 'name': 'Yellow'}, 4: {'id': 4, 'name': 'off'}}
 
         config = tf.ConfigProto()
@@ -170,14 +140,15 @@ class TLClassifier(object):
             if boxes.shape[0] == 0:
                 print('no light dection')
             else:
-                if VISUALIZE == True:
-                    vis_util.visualize_boxes_and_labels_on_image_array(image, 
-                        boxes, classes.astype(np.int32), 
-                        scores, self.category_index, use_normalized_coordinates=True,
-                        min_score_thresh=.15, line_thickness=3)
-                    plt.figure(figsize=(9,6))
-                    plt.imshow(image)
-                    plt.show()
+                ## code to visulize the classified image
+                # if VISUALIZE == True:
+                #     vis_util.visualize_boxes_and_labels_on_image_array(image, 
+                #         boxes, classes.astype(np.int32), 
+                #         scores, self.category_index, use_normalized_coordinates=True,
+                #         min_score_thresh=.15, line_thickness=3)
+                #     plt.figure(figsize=(9,6))
+                #     plt.imshow(image)
+                #     plt.show()
                 for i in range(boxes.shape[0]):
                     light_color = self.category_index[classes[i]]['name']
                     light_statuses.append(light_color)
@@ -192,7 +163,7 @@ class TLClassifier(object):
                     print('light is green')
                 else:
                     self.current_light = TrafficLight.UNKNOWN
-    # Tried to implement light classiffier simply for light image inside box, but failed, seems the predict function not support correctly
+    ## Tried to implement light classiffier simply for light image inside box, but failed, seems the predict function not support correctly
         # red_lights = []
         # for i in range(boxes.shape[0]):
         #     if classes[i] == 10:
@@ -232,7 +203,7 @@ class TLClassifier(object):
         # else:
         #     self.current_light = TrafficLight.UNKNOWN 
 
-
+        ## code forked from others, the logic is different with myself, but doesn't work here
         # for i in range(boxes.shape[0]):
         #     if scores is None or scores[i] > confidence_cutoff:
         #         other_count += 1
@@ -246,131 +217,4 @@ class TLClassifier(object):
         # else:
         #     self.current_light = TrafficLight.RED
 
-            # # The current box coordinates are normalized to a range between 0 and 1.
-            # # This converts the coordinates actual location on the image.
-            # width, height = image.size
-            # box_coords = to_image_coords(boxes, height, width)
-
-            # # Each class with be represented by a differently colored box
-            # draw_boxes(image, box_coords, classes)
-
-            # plt.figure(figsize=(12, 8))
-            # plt.imshow(image)
-
         return self.current_light 
-
-
-
-
-
-	# def load_graph(graph_file):
-	# 	"""Loads a frozen inference graph"""
-	# 	graph = tf.Graph()
-	# 	with graph.as_default():
-	# 		od_graph_def = tf.GraphDef()
-	# 		with tf.gfile.GFile(graph_file, 'rb') as fid:
-	# 			serialized_graph = fid.read()
-	# 			od_graph_def.ParseFromString(serialized_graph)
-	# 			tf.import_graph_def(od_graph_def, name='')
-	# 	return graph
-	
-	# TODO: Complete this function.
-	# The input is an NumPy array.
-	# The output should also be a NumPy array.
-	# def pipeline(img):
-	# 	#pass
-	# 	draw_img = Image.fromarray(img)
-	# 	boxes, scores, classes = sess.run([detection_boxes, detection_scores, detection_classes], feed_dict={image_tensor: np.expand_dims(img, 0)})
-	# 	# Remove unnecessary dimensions
-	# 	boxes = np.squeeze(boxes)
-	# 	scores = np.squeeze(scores)
-	# 	classes = np.squeeze(classes)
-
-	# 	confidence_cutoff = 0.8
-	# 	# Filter boxes with a confidence score less than `confidence_cutoff`
-	# 	boxes, scores, classes = filter_boxes(confidence_cutoff, boxes, scores, classes)
-
-	# 	# The current box coordinates are normalized to a range between 0 and 1.
-	# 	# This converts the coordinates actual location on the image.
-	# 	width, height = draw_img.size
-	# 	box_coords = to_image_coords(boxes, height, width)
-
-	# 	# Each class with be represented by a differently colored box
-	# 	draw_boxes(draw_img, box_coords, classes)
-	# 	return np.array(draw_img)
-## Colors (one for each class)
-#cmap = ImageColor.colormap
-#print("Number of colors =", len(cmap))
-#COLOR_LIST = sorted([c for c in cmap.keys()])
-
-#
-# Utility funcs
-#
-
-
-    
-
-
-
-    
-#def time_detection(sess, img_height, img_width, runs=10):
-#image_tensor = sess.graph.get_tensor_by_name('image_tensor:0')
-#detection_boxes = sess.graph.get_tensor_by_name('detection_boxes:0')
-#detection_scores = sess.graph.get_tensor_by_name('detection_scores:0')
-#detection_classes = sess.graph.get_tensor_by_name('detection_classes:0')
-#
-## warmup
-#gen_image = np.uint8(np.random.randn(1, img_height, img_width, 3))
-#sess.run([detection_boxes, detection_scores, detection_classes], feed_dict={image_tensor: gen_image})
-#
-#times = np.zeros(runs)
-#for i in range(runs):
-#	t0 = time.time()
-#	sess.run([detection_boxes, detection_scores, detection_classes], feed_dict={image_tensor: image_np})
-#	t1 = time.time()
-#	times[i] = (t1 - t0) * 1000
-#return times
-
-#with tf.Session(graph=detection_graph) as sess:
-#times = time_detection(sess, 600, 1000, runs=10)
-#
-## Create a figure instance
-#fig = plt.figure(1, figsize=(9, 6))
-#
-## Create an axes instance
-#ax = fig.add_subplot(111)
-#plt.title("Object Detection Timings")
-#plt.ylabel("Time (ms)")
-#
-## Create the boxplot
-#plt.style.use('fivethirtyeight')
-#bp = ax.boxplot(times)
-
-
-
-# HTML("""
-# <video width="960" height="600" controls>
-#   <source src="{0}" type="video/mp4">
-# </video>
-# """.format('driving.mp4'))
-
-# clip = VideoFileClip('driving.mp4')
-
-
-    
-# with tf.Session(graph=detection_graph) as sess:
-# image_tensor = sess.graph.get_tensor_by_name('image_tensor:0')
-# detection_boxes = sess.graph.get_tensor_by_name('detection_boxes:0')
-# detection_scores = sess.graph.get_tensor_by_name('detection_scores:0')
-# detection_classes = sess.graph.get_tensor_by_name('detection_classes:0')
-
-# new_clip = clip.fl_image(pipeline)
-
-# # write to file
-# new_clip.write_videofile('result.mp4')
-
-# HTML("""
-# <video width="960" height="600" controls>
-#   <source src="{0}" type="video/mp4">
-# </video>
-# """.format('result.mp4'))
