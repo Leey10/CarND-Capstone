@@ -18,7 +18,7 @@ Project Contributions: Team Lead, tl_detector.py and tl_classifier.py, waypoint_
 
 ### Li Yang
 
-lyang3740@gmail.com
+lyang20@ncsu.edu
 Project contributions: twist_controller.py, dbw_node.py
 
 ## Software Architecture
